@@ -20,22 +20,23 @@ func parseGcloudVersion(versionInfo string) string {
 	return gcloudVersionLine + "\n"
 }
 
-func getGcloudVersion(ctx context.Context) (string, error) {
+func checkGcloudVersion(ctx context.Context) error {
 	cmd := exec.CommandContext(ctx, "gcloud", "version")
 	version, err := cmd.Output()
 	if err != nil {
 		fmt.Printf("Error: %v", err)
-		return "", err
+		return err
 	}
 	gcloudVersion := parseGcloudVersion(string(version))
-	return gcloudVersion, nil
+
+	fmt.Printf("Found gcloud: %v", gcloudVersion)
+	return nil
 }
 
 func (g *GCPAuthenticator) Login(ctx context.Context) error {
-	version, err := getGcloudVersion(ctx)
+	err := checkGcloudVersion(ctx)
 	if err != nil {
 		fmt.Printf("Error: %v ", err)
 	}
-	fmt.Printf("Found gcloud: %v", version)
 	return nil
 }
