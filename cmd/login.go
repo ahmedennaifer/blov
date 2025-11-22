@@ -18,7 +18,7 @@ var loginCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		provider := args[0]
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
 		defer cancel()
 		switch provider {
 		case "gcp":
