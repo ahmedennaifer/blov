@@ -4,6 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/ahmedennaifer/blov/internal/config"
@@ -29,7 +30,9 @@ var gcpCmd = &cobra.Command{
 				return
 			}
 			if gcpConfig, ok := cfg.Config.(*gcp.GoogleCloudConfig); ok {
-				fmt.Printf("%v\n%v\n", gcpConfig.ProjectId, gcpConfig.Region)
+
+				data, _ := json.MarshalIndent(gcpConfig, "", "  ")
+				fmt.Printf("%v\n", string(data))
 				return
 			}
 

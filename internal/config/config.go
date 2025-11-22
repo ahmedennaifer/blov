@@ -9,7 +9,7 @@ type Configurer interface {
 	SetProjectOrSubscription(value string) error
 	Save() error
 	Read() error
-	Show() interface{}
+	Show() any
 }
 
 type ProviderConfig struct {
