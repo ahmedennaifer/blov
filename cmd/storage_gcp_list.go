@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ahmedennaifer/blov/internal/blob"
 	config "github.com/ahmedennaifer/blov/internal/config/gcp"
 	"github.com/ahmedennaifer/blov/internal/storage/gcp"
 	"github.com/spf13/cobra"
@@ -30,11 +31,10 @@ var storageGcpListCmd = &cobra.Command{
 		}
 		buckets, err := gcpStorage.ListAll(ctx, args)
 		if err != nil {
-			fmt.Printf("error when llisting blobs: %v\n", err)
+			fmt.Printf("\033[31merror when listing blobs: %v\033[0m\n", err)
+			return
 		}
-		for _, bucket := range buckets {
-			fmt.Println(bucket)
-		}
+		blob.FormatList(buckets)
 	},
 }
 
