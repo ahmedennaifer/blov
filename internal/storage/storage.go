@@ -3,9 +3,10 @@ package storage
 import (
 	"context"
 
-	"github.com/ahmedennaifer/blov/internal/structs"
+	"github.com/ahmedennaifer/blov/internal/blob"
 )
 
 type Storer interface {
-	List(ctx context.Context, bucket string, prefix string) ([]structs.BlobInfo, error)
+	ListAll(ctx context.Context, args ...any) ([]blob.Blob, error)
+	List(ctx context.Context, bucket string, prefix string) ([]blob.Blob, error)
 }

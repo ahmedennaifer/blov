@@ -64,7 +64,6 @@ func (g *GCPAuthenticator) Login(ctx context.Context) error {
 }
 
 func (g *GCPAuthenticator) Verify(ctx context.Context) error {
-	g.Config.Read()
 	gcpStorage, err := storage.NewGCPStorageFromConfig(ctx, g.Config)
 	if err != nil {
 		return fmt.Errorf("%v", err)

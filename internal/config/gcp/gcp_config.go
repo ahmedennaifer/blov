@@ -12,6 +12,10 @@ type GoogleCloudConfig struct {
 	Region    string `json:"region"`
 }
 
+func NewGCPConfig() *GoogleCloudConfig {
+	return &GoogleCloudConfig{}
+}
+
 func (g *GoogleCloudConfig) SetRegionOrLocation(value string) error {
 	if value == "" {
 		return fmt.Errorf("error: region value cannot be empty")
