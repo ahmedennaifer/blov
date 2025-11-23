@@ -14,39 +14,30 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var storageGcpListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List objects in a GCP bucket",
-	Args:  cobra.RangeArgs(1, 2),
+// storageGcpListCmd represents the storageGcpList command
+var storageGcpListAllCmd = &cobra.Command{
+	Use:   "list-all",
+	Short: "Lists all available buckets in the config's region",
 	Run: func(cmd *cobra.Command, args []string) {
+		// turn into struct, or embed into gcpStorage struct
 		ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
 		defer cancel()
-
 		gcpConfig := config.NewGCPConfig()
 		gcpConfig.Read()
-
 		gcpStorage, err := gcp.NewGCPStorageFromConfig(ctx, *gcpConfig)
 		if err != nil {
-			fmt.Printf("\033[31m%v\033[0m\n", err)
+			fmt.Printf("\033[31m%v\033[0m", err)
 			return
 		}
-
-		bucket := args[0]
-		prefix := ""
-		if len(args) > 1 {
-			prefix = args[1]
-		}
-
-		objects, err := gcpStorage.List(ctx, bucket, prefix)
+		buckets, err := gcpStorage.ListAll(ctx, args)
 		if err != nil {
-			fmt.Printf("\033[31merror listing objects: %v\033[0m\n", err)
+			fmt.Printf("\033[31merror when listing blobs: %v\033[0m\n", err)
 			return
 		}
-
-		blob.FormatList(objects)
+		blob.FormatList(buckets)
 	},
 }
 
 func init() {
-	storageGcpCmd.AddCommand(storageGcpListCmd)
+	storageGcpCmd.AddCommand(storageGcpListAllCmd)
 }

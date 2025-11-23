@@ -31,25 +31,11 @@ func NewGCPStorageFromConfig(ctx context.Context, config gcp.GoogleCloudConfig) 
 
 func (s *GCPStorage) CountBuckets(ctx context.Context) (int, error) {
 	s.GcpConfig.Read()
-
-	it := s.Client.Buckets(ctx, s.GcpConfig.ProjectId)
-	count := 0
-	for {
-		attrs, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return 0, fmt.Errorf("error listing buckets: %v", err)
-		}
-
-		if s.GcpConfig.Region != "" && !strings.EqualFold(attrs.Location, s.GcpConfig.Region) {
-			continue
-		}
-
-		count++
+	buckets, err := s.ListAll(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("%v", err)
 	}
-	return count, nil
+	return len(buckets), nil
 }
 
 func (s *GCPStorage) ListAll(ctx context.Context, args ...any) ([]blob.Blob, error) {
@@ -75,5 +61,27 @@ func (s *GCPStorage) ListAll(ctx context.Context, args ...any) ([]blob.Blob, err
 }
 
 func (s *GCPStorage) List(ctx context.Context, bucket string, prefix string) ([]blob.Blob, error) {
-	return nil, nil
+	it := s.Client.Bucket(bucket).Objects(ctx, &storage.Query{Prefix: prefix})
+	blobs := make([]blob.Blob, 0)
+
+	for {
+		attrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return blobs, fmt.Errorf("error listing objects: %v", err)
+		}
+
+		blob := blob.Blob{
+			Name:         attrs.Name,
+			Size:         attrs.Size,
+			LastModified: attrs.Updated,
+			IsFolder:     strings.HasSuffix(attrs.Name, "/"),
+			Provider:     "gcp",
+		}
+		blobs = append(blobs, blob)
+	}
+
+	return blobs, nil
 }
