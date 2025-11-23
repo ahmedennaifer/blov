@@ -19,14 +19,14 @@ var gcpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		gcpCmd := args[0]
 		if gcpCmd != "set" && gcpCmd != "get" && gcpCmd != "list" {
-			fmt.Printf("error: Subcommand %v is not supported for command `gcp`\nUsage: blov config gcp set region-id your-region-id\n", gcpCmd)
+			fmt.Printf("\033[31merror: Subcommand %v is not supported for command `gcp`\033[0m\nUsage: blov config gcp set region-id your-region-id\n", gcpCmd)
 			return
 		}
 		cfg := config.NewProviderConfig("gcp")
 		switch gcpCmd {
 		case "list":
 			if err := cfg.Config.Read(); err != nil {
-				fmt.Printf("error: make sure you setup your project-id and region correctly: %v\n", err)
+				fmt.Printf("\033[31merror: make sure you setup your project-id and region correctly: %v\033[0m\n", err)
 				return
 			}
 			if gcpConfig, ok := cfg.Config.(*gcp.GoogleCloudConfig); ok {
@@ -40,32 +40,31 @@ var gcpCmd = &cobra.Command{
 			attribute := args[1]
 			value := args[2]
 
-			// Read existing config first
-			cfg.Config.Read() // Ignore error if file doesn't exist
+			cfg.Config.Read()
 
 			switch attribute {
 			case "project-id":
 				if err := cfg.Config.SetProjectOrSubscription(value); err != nil {
-					fmt.Printf("%v", err)
+					fmt.Printf("\033[31m%v\033[0m", err)
 				}
-				fmt.Printf("GCP ProjectId set to %v\n", value)
+				fmt.Printf("\033[32mGCP ProjectId set to %v\033[0m\n", value)
 				cfg.Config.Save()
 				return
 
 			case "region":
 				if err := cfg.Config.SetRegionOrLocation(value); err != nil {
-					fmt.Printf("error: %v", err)
+					fmt.Printf("\033[31merror: %v\033[0m", err)
 				}
-				fmt.Printf("GCP Region set to %v\n", value)
+				fmt.Printf("\033[32mGCP Region set to %v\033[0m\n", value)
 				cfg.Config.Save()
 				return
 
 			default:
-				fmt.Printf("error: command %v does not exist. Choose one of project-id or region for GCP", attribute)
+				fmt.Printf("\033[31merror: command %v does not exist. Choose one of project-id or region for GCP\033[0m", attribute)
 				return
 			}
 		default:
-			fmt.Printf("error: command %v does not exists. Choose one of: list or set for GCP", gcpCmd)
+			fmt.Printf("\033[31merror: command %v does not exists. Choose one of: list or set for GCP\033[0m", gcpCmd)
 		}
 	},
 }

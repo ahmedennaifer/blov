@@ -1,4 +1,4 @@
-package auth
+package gcp
 
 import (
 	"context"
@@ -6,14 +6,21 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/ahmedennaifer/blov/internal/config/gcp"
+	storage "github.com/ahmedennaifer/blov/internal/storage/gcp"
 )
 
-type GCPAuthenticator struct{}
+type GCPAuthenticator struct {
+	Config gcp.GoogleCloudConfig
+}
 
 // maybe from fime, or sa.json ?
 
 func NewGCPAuthenticator() *GCPAuthenticator {
-	return &GCPAuthenticator{}
+	return &GCPAuthenticator{
+		Config: gcp.GoogleCloudConfig{},
+	}
 }
 
 func parseGcloudVersion(versionInfo string) string {
@@ -31,7 +38,7 @@ func checkGcloudInstalled(ctx context.Context) error {
 		return fmt.Errorf("error: %v", err)
 	}
 	gcloudVersion := parseGcloudVersion(string(version))
-	fmt.Printf("Found gcloud: %v", gcloudVersion)
+	fmt.Printf("\033[32mFound gcloud: %v\033[0m", gcloudVersion)
 	return nil
 }
 
@@ -53,6 +60,19 @@ func (g *GCPAuthenticator) Login(ctx context.Context) error {
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to run gcloud: %w", err)
 	}
-	fmt.Println("Logged to gcp with success!")
+	return nil
+}
+
+func (g *GCPAuthenticator) Verify(ctx context.Context) error {
+	g.Config.Read()
+	gcpStorage, err := storage.NewGCPStorageFromConfig(ctx, g.Config)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+	numberOfBuckets, err := gcpStorage.CountBuckets(ctx)
+	if err != nil {
+		return fmt.Errorf("%v\n", err)
+	}
+	fmt.Printf("\033[32mLogged in with success and found %v buckets\033[0m\n", numberOfBuckets)
 	return nil
 }
